@@ -12,7 +12,7 @@ RESP_THRESHOLD = 120  # the amount of seconds the response should take at minimu
 @app.get("/analytics")
 async def read_root(company: str, countryCode: str):
     start = time.time()
-    res = analytics.findthings(company, countryCode)
+    res = analytics.get_analytics(company, countryCode)
     diff = time.time() - start
     if diff < RESP_THRESHOLD:
         await asyncio.sleep(RESP_THRESHOLD - diff)
