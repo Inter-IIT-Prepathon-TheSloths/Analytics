@@ -169,5 +169,5 @@ def LSTM_model(company, country_code):
 
     return stock_prices_predictions[0][0], expense_predictions[0][0], revenue_predictions[0][0], market_share_predictions[0][0]
 
-print(LSTM_model('Oyope', 'UAH'))
+# print(LSTM_model('Oyope', 'UAH'))
         
