@@ -79,11 +79,15 @@ def LSTM_model(company, country_code):
     # print(revenue)
     # print(expense)
 
-    scaler = MinMaxScaler()
-    stock_prices_scaled = scaler.fit_transform(stock_prices)
-    market_share_scaled = scaler.fit_transform(market_share)
-    revenue_scaled = scaler.fit_transform(revenue)
-    expense_scaled = scaler.fit_transform(expense)
+    stock_prices_scaler = MinMaxScaler()
+    market_share_scaler = MinMaxScaler()
+    revenue_scaler = MinMaxScaler()
+    expense_scaler = MinMaxScaler()
+
+    stock_prices_scaled = stock_prices_scaler.fit_transform(stock_prices)
+    market_share_scaled = market_share_scaler.fit_transform(market_share)
+    revenue_scaled = revenue_scaler.fit_transform(revenue)
+    expense_scaled = expense_scaler.fit_transform(expense)
     # print(stock_prices_scaled)
     # print(market_share_scaled)
     # print(revenue_scaled)
@@ -94,10 +98,13 @@ def LSTM_model(company, country_code):
     X = X.reshape(X.shape[1], X.shape[0], X.shape[2])
     # print(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, stock_prices_scaled, test_size=0.1, random_state=0)
+    X_train_stock_prices, X_test_stock_prices, y_train_stock_prices, y_test_stock_prices = train_test_split(X, stock_prices_scaled, test_size=0.1, random_state=0)
+    X_train_revenue, X_test_revenue, y_train_revenue, y_test_revenue = train_test_split(X, revenue_scaled, test_size=0.1, random_state=0)
+    X_train_expense, X_test_expense, y_train_expense, y_test_expense = train_test_split(X, expense_scaled, test_size=0.1, random_state=0)
+    X_train_market_share, X_test_market_share, y_train_market_share, y_test_market_share = train_test_split(X, market_share_scaled, test_size=0.1, random_state=0)
 
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train_stock_prices.shape[1], X_train_stock_prices.shape[2])))
     model.add(Dropout(0.2))
     model.add(LSTM(units=50, return_sequences=True))
     model.add(Dropout(0.2))
@@ -107,7 +114,7 @@ def LSTM_model(company, country_code):
     stock_prices_model = model
 
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train_expense.shape[1], X_train_expense.shape[2])))
     model.add(Dropout(0.2))
     model.add(LSTM(units=50, return_sequences=True))
     model.add(Dropout(0.2))
@@ -117,7 +124,7 @@ def LSTM_model(company, country_code):
     expense_model = model
 
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train_revenue.shape[1], X_train_revenue.shape[2])))
     model.add(Dropout(0.2))
     model.add(LSTM(units=50, return_sequences=True))
     model.add(Dropout(0.2))
@@ -127,7 +134,7 @@ def LSTM_model(company, country_code):
     revenue_model = model
 
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train_market_share.shape[1], X_train_market_share.shape[2])))
     model.add(Dropout(0.2))
     model.add(LSTM(units=50, return_sequences=True))
     model.add(Dropout(0.2))
@@ -137,28 +144,30 @@ def LSTM_model(company, country_code):
     market_share_model = model
 
     stock_prices_model.compile(optimizer='adam', loss='mean_squared_error')
-    stock_prices_model.fit(X_train, y_train, epochs=100, batch_size=32)
+    stock_prices_model.fit(X_train_stock_prices, y_train_stock_prices, epochs=100, batch_size=32)
 
     expense_model.compile(optimizer='adam', loss='mean_squared_error')
-    expense_model.fit(X_train, y_train, epochs=100, batch_size=32)
+    expense_model.fit(X_train_expense, y_train_expense, epochs=100, batch_size=32)
 
     revenue_model.compile(optimizer='adam', loss='mean_squared_error')
-    revenue_model.fit(X_train, y_train, epochs=100, batch_size=32)
+    revenue_model.fit(X_train_revenue, y_train_revenue, epochs=100, batch_size=32)
 
     market_share_model.compile(optimizer='adam', loss='mean_squared_error')
-    market_share_model.fit(X_train, y_train, epochs=100, batch_size=32)
+    market_share_model.fit(X_train_market_share, y_train_market_share, epochs=100, batch_size=32)
 
-    stock_prices_predictions = stock_prices_model.predict(X_test)
-    stock_prices_predictions = scaler.inverse_transform(stock_prices_predictions)
+    stock_prices_predictions = stock_prices_model.predict(X_test_stock_prices)
+    stock_prices_predictions = stock_prices_scaler.inverse_transform(stock_prices_predictions)
 
-    expense_predictions = expense_model.predict(X_test)
-    expense_predictions = scaler.inverse_transform(expense_predictions)
+    expense_predictions = expense_model.predict(X_test_expense)
+    expense_predictions = expense_scaler.inverse_transform(expense_predictions)
 
-    revenue_predictions = revenue_model.predict(X_test)
-    revenue_predictions = scaler.inverse_transform(revenue_predictions)
+    revenue_predictions = revenue_model.predict(X_test_revenue)
+    revenue_predictions = revenue_scaler.inverse_transform(revenue_predictions)
 
-    market_share_predictions = market_share_model.predict(X_test)
-    market_share_predictions = scaler.inverse_transform(market_share_predictions)
+    market_share_predictions = market_share_model.predict(X_test_market_share)
+    market_share_predictions = market_share_scaler.inverse_transform(market_share_predictions)
 
-    return stock_prices_predictions, expense_predictions, revenue_predictions, market_share_predictions
+    return stock_prices_predictions[0][0], expense_predictions[0][0], revenue_predictions[0][0], market_share_predictions[0][0]
+
+print(LSTM_model('Oyope', 'UAH'))
         
