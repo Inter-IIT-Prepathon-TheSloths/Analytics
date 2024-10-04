@@ -3,6 +3,7 @@ import uvicorn
 import analytics
 import time
 import asyncio
+import model
 
 app = FastAPI()
 
@@ -17,6 +18,16 @@ async def read_root(company: str, countryCode: str):
     if diff < RESP_THRESHOLD:
         await asyncio.sleep(RESP_THRESHOLD - diff)
     return res
+
+@app.get("/model")
+async def read_root(company: str, countryCode: str):
+    start = time.time()
+    res = model.LSTM_model(company, countryCode)
+    diff = time.time() - start
+    if diff < RESP_THRESHOLD:
+        await asyncio.sleep(RESP_THRESHOLD - diff)
+    return res
+
 
 
 if __name__ == "__main__":
