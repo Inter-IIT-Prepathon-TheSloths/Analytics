@@ -156,14 +156,19 @@ def get_analytics(index: int):
 
 def search(company: str, countrycode: str):
     filtered_data = df[
-        (df["Company"].str.contains(company, case=False))
-        & (df["Country Code"].str.contains(countrycode, case=False))
-    ].filter(items=["SL No", "Company", "Country Code"])
+    (df["Company"].str.contains(company, case=False))
+    & (df["Country Code"].str.contains(countrycode, case=False))
+    ].filter(items=["SL No", "Company", "Country Code"]).rename(columns={
+        "SL No": "s_no",
+        "Company": "company",
+        "Country Code": "country_code"
+    })
     return filtered_data.to_dict(orient="records")
 
 
 if __name__ == "__main__":
     # print(get_analytics(9))
     k = search("zoo", "")
+    print(k)
 
 # %%
