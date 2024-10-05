@@ -5,6 +5,7 @@
 
 
 import pandas as pd
+import model
 
 
 SUBJECT_COLS = ["Stock Price", "Market Share", "Revenue", "Expense"]
@@ -64,12 +65,22 @@ def calculate_cagr(start_value, end_value, years):
 # In[63]:
 
 
-def get_analytics(index):
-    if df.shape[0] < index:
+def put_missing_data(ser: pd.Series):
+    ser = ser.fillna(ser.mean())
+    return ser
+
+
+def get_analytics(index: int):
+    if index > df.shape[0] or index < 1:
         return {"status": "error", "message": "Index out of bounds"}
 
-    key_row = df.iloc[index]
-    print(index, key_row["Company"], key_row["Country Code"])
+    key_row = df.iloc[index - 1]
+    print(key_row["SL No"], key_row["Company"], key_row["Country Code"])
+
+    feature_cols: dict[str, pd.Series] = {}
+    for col in SUBJECT_COLS:
+        feature_cols[col] = put_missing_data(key_row.filter(like=col))
+
     key_country_code = key_row["Country Code"]
 
     # a - How many companies are there in the same country
@@ -82,13 +93,10 @@ def get_analytics(index):
     ].shape[0]
 
     # c - Inc/Dec in <params> (here we send the actual values, and can find diff array when graphing)
-    feature_cols = {}
-    for col in SUBJECT_COLS:
-        feature_cols[col] = key_row.filter(like=col)
 
     yearly_changes = {}
     for col in SUBJECT_COLS:
-        yearly_changes[col] = key_row.filter(like=col).pct_change()
+        yearly_changes[col] = feature_cols[col].pct_change().dropna() * 100
 
     # d - how many companies have greater <params> than this company (considering latest year)
     ans = []
@@ -133,14 +141,20 @@ def get_analytics(index):
 
     ret = {
         "status": "success",
+        "s_no": int(key_row["SL No"]),
+        "company": key_row["Company"],
+        "country_code": key_country_code,
         "a": freq,
         "b": moreDiv,
         "c": yearly_changes,
         "d": ans,
         "e": {"e_r_ratio": e_r_ratio, "cagr_ratio": cagr_ratio},
+        "f": model.LSTM_model(index),
     }
     return ret
 
 
 if __name__ == "__main__":
-    print(get_analytics(8))
+    (get_analytics(9))
+
+# %%
