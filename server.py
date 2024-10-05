@@ -18,6 +18,10 @@ async def read_root(index: int):
         await asyncio.sleep(RESP_THRESHOLD - diff)
     return res
 
+@app.get("/search")
+async def search(company: str, countrycode: str):
+    return analytics.search(company, countrycode)
+
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="127.0.0.1", port=8000, log_level="info")

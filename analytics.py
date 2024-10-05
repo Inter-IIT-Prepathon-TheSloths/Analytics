@@ -154,7 +154,16 @@ def get_analytics(index: int):
     return ret
 
 
+def search(company: str, countrycode: str):
+    filtered_data = df[
+        (df["Company"].str.contains(company, case=False))
+        & (df["Country Code"].str.contains(countrycode, case=False))
+    ].filter(items=["SL No", "Company", "Country Code"])
+    return filtered_data.to_dict(orient="records")
+
+
 if __name__ == "__main__":
-    (get_analytics(9))
+    # print(get_analytics(9))
+    k = search("zoo", "")
 
 # %%
