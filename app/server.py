@@ -1,13 +1,28 @@
 from fastapi import FastAPI
 import uvicorn
-import analytics
+import app.analytics as analytics
 import time
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 app = FastAPI()
 
 RESP_THRESHOLD = 120  # the amount of seconds the response should take at minimum
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True, 
+    allow_methods=["*"], 
+    allow_headers=["*"],
+)
+
+app.add_middleware(GZipMiddleware, minimum_size=100)
+
+@app.get("/")
+async def read_root():
+    return {"status": "OK"}
 
 @app.get("/analytics")
 async def read_root(index: int):
@@ -18,9 +33,9 @@ async def read_root(index: int):
         await asyncio.sleep(RESP_THRESHOLD - diff)
     return res
 
-@app.get("/search")
-async def search(company: str, countrycode: str):
-    return analytics.search(company, countrycode)
+@app.get("/companies")
+async def companies():
+    return analytics.get_companies()
 
 
 if __name__ == "__main__":
