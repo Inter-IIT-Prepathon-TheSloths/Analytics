@@ -21,20 +21,20 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=100)
 
 @app.get("/")
-async def read_root():
+async def health():
     return {"status": "OK"}
 
 @app.get("/analytics")
-async def read_root(index: int):
+def read_root(index: int):
     start = time.time()
     res = analytics.get_analytics(index)
     diff = time.time() - start
     if diff < RESP_THRESHOLD:
-        await asyncio.sleep(RESP_THRESHOLD - diff)
+        time.sleep(RESP_THRESHOLD - diff)
     return res
 
 @app.get("/companies")
-async def companies():
+def companies():
     return analytics.get_companies()
 
 

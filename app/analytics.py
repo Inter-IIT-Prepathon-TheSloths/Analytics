@@ -5,7 +5,8 @@
 
 
 import pandas as pd
-import model
+from models import model
+from models import new_model
 
 
 SUBJECT_COLS = ["Stock Price", "Market Share", "Revenue", "Expense"]
