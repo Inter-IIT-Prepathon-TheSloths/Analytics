@@ -150,7 +150,7 @@ def get_analytics(index: int):
         "c": yearly_changes,
         "d": ans,
         "e": {"e_r_ratio": e_r_ratio, "cagr_ratio": cagr_ratio},
-        "f": model.LSTM_model(index),
+        # "f": model.LSTM_model(index),
     }
     return ret
 
